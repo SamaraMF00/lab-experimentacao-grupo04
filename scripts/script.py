@@ -29,7 +29,7 @@ def get_repository_info(repository):
     }
 
 def main():
-    token = ""
+    token = SEU_TOKEN_AQUI
     headers = {'Authorization': f'Bearer {token}'}
     endpoint = 'https://api.github.com/graphql'
     query = '''
@@ -89,7 +89,6 @@ def main():
             variables['after'] = end_cursor
             response = requests.post(endpoint, json={'query': query, 'variables': variables}, headers=headers)
 
-        response = requests.post(endpoint, json={'query': query_with_after}, headers=headers)
         data = response.json()
 
         for repository in data['data']['search']['edges']:           
