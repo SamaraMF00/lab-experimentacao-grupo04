@@ -29,14 +29,24 @@ def get_repository_info(repository):
     }
 
 def main():
-    token = INSERIR_TOKEN
+    token = "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"
     headers = {'Authorization': f'Bearer {token}'}
     endpoint = 'https://api.github.com/graphql'
     query = '''
-    query {
-      search(query: "stars:>1", type: REPOSITORY, first: 100) {
+    query ($after: String!){
+      search(query: "stars:>1", type: REPOSITORY, first: 20, after: $after) {
+      
+        pageInfo {
+          endCursor
+          startCursor
+          hasNextPage
+          hasPreviousPage
+        }
+
         edges {
+      
           node {
+          
             ... on Repository {
               name
               createdAt
@@ -62,16 +72,38 @@ def main():
         }
       }
     }
-    '''
-
-    response = requests.post(endpoint, json={'query': query}, headers=headers)
-    data = response.json()
+    '''   
 
     repositories_info = []
+    has_next_page = True
+    end_cursor = ""
+    variables = {}
+    intCont = 0
 
-    for repository in data['data']['search']['edges']:
-        repository_info = get_repository_info(repository)
-        repositories_info.append(repository_info)
+    while has_next_page and intCont < 1000:
+        if end_cursor == "":
+            query_with_after = query.replace(', after: $after', "")
+            query_with_after = query_with_after.replace('($after: String!)', "")
+            response = requests.post(endpoint, json={'query': query_with_after}, headers=headers)
+        else:
+            variables['after'] = end_cursor
+            response = requests.post(endpoint, json={'query': query, 'variables': variables}, headers=headers)
+
+        response = requests.post(endpoint, json={'query': query_with_after}, headers=headers)
+        data = response.json()
+
+        for repository in data['data']['search']['edges']:           
+            repository_info = get_repository_info(repository)
+            repositories_info.append(repository_info)            
+
+        if data['data']['search']['pageInfo']['hasNextPage']:
+            end_cursor = data['data']['search']['pageInfo']['endCursor']
+        else:
+            has_next_page = False
+
+        intCont += 20    
+
+        
 
     for info in repositories_info:
         print(info)
