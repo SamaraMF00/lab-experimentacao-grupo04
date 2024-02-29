@@ -29,7 +29,7 @@ def get_repository_info(repository):
     }
 
 def main():
-    token = "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"
+    token = ""
     headers = {'Authorization': f'Bearer {token}'}
     endpoint = 'https://api.github.com/graphql'
     query = '''
