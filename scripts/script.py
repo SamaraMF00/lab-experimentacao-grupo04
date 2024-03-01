@@ -1,3 +1,4 @@
+import csv
 import requests
 from datetime import datetime
 
@@ -29,7 +30,7 @@ def get_repository_info(repository):
     }
 
 def main():
-    token = SEU_TOKEN_AQUI
+    token = 'TOKEN'
     headers = {'Authorization': f'Bearer {token}'}
     endpoint = 'https://api.github.com/graphql'
     query = '''
@@ -42,11 +43,8 @@ def main():
           hasNextPage
           hasPreviousPage
         }
-
         edges {
-      
           node {
-          
             ... on Repository {
               name
               createdAt
@@ -78,13 +76,13 @@ def main():
     has_next_page = True
     end_cursor = ""
     variables = {}
-    intCont = 0
+    repoCont = 0
 
-    while has_next_page and intCont < 1000:
+    while has_next_page and repoCont < 1000:
         if end_cursor == "":
-            query_with_after = query.replace(', after: $after', "")
-            query_with_after = query_with_after.replace('($after: String!)', "")
-            response = requests.post(endpoint, json={'query': query_with_after}, headers=headers)
+            query_starter = query.replace(', after: $after', "")
+            query_starter = query_starter.replace('($after: String!)', "")
+            response = requests.post(endpoint, json={'query': query_starter}, headers=headers)
         else:
             variables['after'] = end_cursor
             response = requests.post(endpoint, json={'query': query, 'variables': variables}, headers=headers)
@@ -100,13 +98,19 @@ def main():
         else:
             has_next_page = False
 
-        intCont += 20    
+        repoCont += 20            
 
+    # for info in repositories_info:
+    #     print(info)
+    #     print()
+
+    with open('repositories_info.csv', 'w', newline='') as fp:
+        fieldnames = repositories_info[0].keys()
+        writer = csv.DictWriter(fp, fieldnames=fieldnames)
         
-
-    for info in repositories_info:
-        print(info)
-        print()
+        writer.writeheader()
+        for info in repositories_info:
+            writer.writerow(info)
 
 if __name__ == "__main__":
     main()
