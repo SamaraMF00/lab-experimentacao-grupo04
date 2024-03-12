@@ -34,7 +34,7 @@ def calculate_stats(data_file):
     return all_stats
 
 # Example usage
-data_file = "your_data.csv"  # Replace with the actual path to your CSV file
+data_file = "./repositories_info.csv"
 stats = calculate_stats(data_file)
 
 # Print the calculated statistics
