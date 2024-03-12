@@ -21,6 +21,7 @@ def get_repository_info(repository):
 
     return {
         'Repository name': repo_node['name'],
+        'Repository Owner': repo_node['owner']['login'],
         'RQ1 - Repository age (days)': age,
         'RQ2 - Total pull requests accepted': total_pull_requests,
         'RQ3 - Total releases': total_releases,
@@ -30,7 +31,7 @@ def get_repository_info(repository):
     }
 
 def main():
-    token = 'TOKEN'
+    token = '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'
     headers = {'Authorization': f'Bearer {token}'}
     endpoint = 'https://api.github.com/graphql'
     query = '''
@@ -49,7 +50,10 @@ def main():
               name
               createdAt
               updatedAt
-
+              
+              owner {
+                login
+              }
               pullRequests(states: MERGED) {
                 totalCount
               }
